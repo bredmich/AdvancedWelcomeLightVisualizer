@@ -97,7 +97,8 @@ See the license.md file for details.
 
 Thanks to sig_serg and SimR from the bimmerpost.com forums for reverse engineering and explaining how the data works.  
 [sig_serg](https://g20.bimmerpost.com/forums/member.php?u=852876)  
-[SimR](https://g20.bimmerpost.com/forums/member.php?u=886522)
+[SimR](https://g20.bimmerpost.com/forums/member.php?u=886522)  
+Thanks to [Michael Dreier](https://github.com/eMDi101)for the creation of the first draft and mentoring while creating this website!
 
 ## Disclaimer
 
