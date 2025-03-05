@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome Light Visualizer v0.1</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-color: #e0e0e0;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .main-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .group-container {
+      background-color: #fff;
+      border-radius: 4px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 500px;
+    }
+    .group-container h3 {
+      margin-top: 0;
+    }
+    label {
+      margin-bottom: 8px;
+      font-size: 14px;
+      display: block;
+    }
+    .input-row {
+    position: relative;
+    margin-bottom: 15px;
+    }
+
+    .input-row input {
+    width: calc(100% - 100px);
+    padding: 6px;
+    font-family: monospace;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    }
+
+    .copy-btn {
+    position: absolute;
+    right: 48px;
+    background-color: #007bff;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 1;
+    }
+
+    .copy-btn:focus {
+    outline: none;
+    }
+    .paste-btn {
+    position: absolute;
+    right: 2px;
+    background-color: #007bff;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 1;
+    }
+
+    .paste-btn:focus {
+    outline: none;
+    }
+
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .dynamic-container {
+      width: 100%;
+      margin-top: 30px;
+    }
+    .seq-block {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .seq-subblock {
+      flex: 1 1 400px;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .seq-subblock h4 {
+      margin-top: 0;
+    }
+    .seq-subblock textarea {
+      width: 100%;
+      height: 80px;
+      font-family: monospace;
+      font-size: 12px;
+      box-sizing: border-box;
+      margin-bottom: 0;
+    }
+    .chartCanvas {
+      margin: 10px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+<h2>Advanced Welcome Light Visualizer</h2>
+
+<div class="main-section">
+  <!-- Group 1: FLM2 left [0x43] -->
+  <div class="group-container">
+    <h3>FLM2 Left [0x43]</h3>
+    <label for="leftStaging1">Staging1_Data (max 252 Byte):</label>
+    <div class="input-row">
+        <input type="text" id="leftStaging1" placeholder="252 Byte, z.B. 00, 01, ..." />
+        <button class="copy-btn" title="Copy to Clipboard" 
+            onclick="copyToClipboard('leftStaging1')">⧉</button>
+        <button class="paste-btn" title="Paste from Clipboard"
+            onclick="pasteFromClipboard('leftStaging1')">⤶</button>
+    </div>
+    <label for="leftStaging2">Staging2_Data (max 252 Byte):</label>
+    <div class="input-row">
+        <input type="text" id="leftStaging2" placeholder="252 Byte, z.B. 00, 01, ..." />
+        <button class="copy-btn" title="Copy to Clipboard" 
+            onclick="copyToClipboard('leftStaging2')">⧉</button>
+        <button class="paste-btn" title="Paste from Clipboard"
+            onclick="pasteFromClipboard('leftStaging2')">⤶</button>
+    </div>
+  </div>
+
+  <!-- Group 2: FLM2 right [0x44] -->
+  <div class="group-container">
+    <h3>FLM2 Right [0x44]</h3>
+    <label for="rightStaging1">Staging1_Data (max 252 Byte):</label>
+    <div class="input-row">
+        <input type="text" id="rightStaging1" placeholder="252 Byte, z.B. 00, 01, ..." />
+        <button class="copy-btn" title="Copy to Clipboard" 
+            onclick="copyToClipboard('rightStaging1')">⧉</button>
+        <button class="paste-btn" title="Paste from Clipboard"
+            onclick="pasteFromClipboard('rightStaging1')">⤶</button>
+    </div>
+    <label for="rightStaging2">Staging2_Data (max 252 Byte):</label>
+    <div class="input-row">
+        <input type="text" id="rightStaging2" placeholder="252 Byte, z.B. 00, 01, ..." />
+        <button class="copy-btn" title="Copy to Clipboard" 
+            onclick="copyToClipboard('rightStaging2')">⧉</button>
+        <button class="paste-btn" title="Paste from Clipboard"
+            onclick="pasteFromClipboard('rightStaging2')">⤶</button>
+    </div>
+  </div>
+</div>
+
+<button onclick="buildDynamicFields()">Parse & Build Dynamic Fields</button>
+<button onclick="clearAllFields()">Clear All</button>
+
+<div class="dynamic-container" id="dynamicContainer">
+  <!-- Dynamic Sequences + Diagrams -->
+</div>
+
+<script>
+// ============================================================================
+// Global const and helper functions
+// ============================================================================
+const MAX_LEFT1 = 252;
+const MAX_LEFT2 = 168;
+const MAX_RIGHT1 = 252;
+const MAX_RIGHT2 = 168;
+
+function parseByteString(str) {
+  if (!str) return [];
+  let arr = str.replace(/\s/g, "").split(",");
+  return arr.map(x => x.trim()).filter(x => x !== "");
+}
+function buildByteString(arr) {
+    return arr.map(x => x.trim()).join(", ");
+}
+function ensureMaxSize(arr, maxSize) {
+  if (arr.length > maxSize) {
+    console.warn(`Exceeded Byte-limit: wanted ${maxSize}, have ${arr.length}. Trimming...`);
+    arr.length = maxSize;
+  }
+}
+
+// ============================================================================
+// Copy to Clipboard function
+// ============================================================================
+function copyToClipboard(fieldId) {
+  const text = document.getElementById(fieldId).value;
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      console.log("Copied to clipboard:", text);
+    })
+    .catch(err => {
+      console.error("Failed to copy!", err);
+    });
+}
+
+// ============================================================================
+// Paste from Clipboard function
+// ============================================================================
+function pasteFromClipboard(fieldId) {
+  navigator.clipboard.readText()
+    .then(text => {
+      document.getElementById(fieldId).value = text;
+      console.log("Pasted from clipboard into", fieldId, ":", text);
+    })
+    .catch(err => {
+      console.error("Failed to paste!", err);
+    });
+}
+
+// ============================================================================
+// Clear all Fields function
+// ============================================================================
+function clearAllFields() {
+  // Leert alle vier Hauptfelder
+  document.getElementById("leftStaging1").value = "";
+  document.getElementById("leftStaging2").value = "";
+  document.getElementById("rightStaging1").value = "";
+  document.getElementById("rightStaging2").value = "";
+}
+
+// ============================================================================
+// 1) Main storage of Bytes and sequences
+// ============================================================================
+let left1Bytes=[], left2Bytes=[], right1Bytes=[], right2Bytes=[];
+let sequencesLeft=[], sequencesRight=[];
+
+let chartSketchesLeft = [];
+let chartSketchesRight = [];
+
+// ============================================================================
+// 2) Main work
+// ============================================================================
+function buildDynamicFields() {
+  // 1) Read the main input fields
+  const leftStaging1 = document.getElementById("leftStaging1").value;
+  const leftStaging2 = document.getElementById("leftStaging2").value;
+  const rightStaging1 = document.getElementById("rightStaging1").value;
+  const rightStaging2 = document.getElementById("rightStaging2").value;
+
+  // 2) Parse in Byte-Arrays
+  left1Bytes = parseByteString(leftStaging1);
+  left2Bytes = parseByteString(leftStaging2);
+  right1Bytes = parseByteString(rightStaging1);
+  right2Bytes = parseByteString(rightStaging2);
+
+  // 3) Check length
+  ensureMaxSize(left1Bytes,  MAX_LEFT1);
+  ensureMaxSize(left2Bytes, MAX_LEFT2);
+  ensureMaxSize(right1Bytes, MAX_RIGHT1);
+  ensureMaxSize(right2Bytes,MAX_RIGHT2);
+
+  // 4) Extract sequences
+  sequencesLeft = parseAllSequencesFromBytes(left1Bytes, left2Bytes);
+  sequencesRight= parseAllSequencesFromBytes(right1Bytes, right2Bytes);
+
+  // 5) Create dynamic fields
+  renderDynamicSequences();
+}
+
+function parseAllSequencesFromBytes(arr1, arr2) {
+  const combined = arr1.concat(arr2);
+  let idx = 0;
+  let seqs = [];
+
+  while (idx + 3 <= combined.length) {
+    // Break if "00,00,00"
+    if (combined[idx]   === "00" &&
+        combined[idx+1] === "00" &&
+        combined[idx+2] === "00") {
+      idx += 3;
+      break;
+    }
+    const identifier = combined[idx];
+    const lenHigh    = combined[idx+1];
+    const lenLow     = combined[idx+2];
+    idx += 3;
+
+    const lengthVal = parseInt(lenHigh+lenLow,16);
+    if (isNaN(lengthVal)) break;
+
+    const dataByteCount = lengthVal*2;
+    let endPos = idx + dataByteCount;
+    if (endPos>combined.length) {
+      console.warn("Sequence data incomplete, break.");
+      break;
+    }
+    const data = combined.slice(idx, endPos);
+    idx = endPos;
+
+    seqs.push({identifier, lengthVal, data});
+  }
+
+  // leftover => RAW
+  let leftover = combined.slice(idx);
+  if (leftover.length>0) {
+    seqs.push({identifier:"RAW", lengthVal:leftover.length, data: leftover});
+  }
+  return seqs;
+}
+
+/**
+ * Dynamic fields and diagrams
+ */
+function renderDynamicSequences() {
+  const container = document.getElementById("dynamicContainer");
+  container.innerHTML = "";
+
+  // Number of blocks
+  let maxSeq = Math.max(sequencesLeft.length, sequencesRight.length);
+
+  // Clear arrays of sketches
+  chartSketchesLeft = [];
+  chartSketchesRight= [];
+
+  for (let i=0; i<maxSeq; i++){
+    const leftSeq = sequencesLeft[i];
+    const rightSeq= sequencesRight[i];
+
+    const seqBlock = document.createElement("div");
+    seqBlock.className = "seq-block";
+
+    // left Subblock
+    const leftSub = document.createElement("div");
+    leftSub.className = "seq-subblock";
+    let leftH4 = document.createElement("h4");
+    leftH4.textContent = `Seq Left #${i+1}`;
+    leftSub.appendChild(leftH4);
+
+    // Textarea
+    let leftTA = document.createElement("textarea");
+    leftTA.value = leftSeq ? sequenceToString(leftSeq) : "";
+    leftTA.oninput = (e)=>{
+      sequencesLeft[i] = stringToSequence(e.target.value);
+      reAssembleLeftBytes();
+    };
+    leftSub.appendChild(leftTA);
+
+    seqBlock.appendChild(leftSub);
+
+    // right Subblock
+    const rightSub = document.createElement("div");
+    rightSub.className = "seq-subblock";
+    let rightH4 = document.createElement("h4");
+    rightH4.textContent = `Seq Right #${i+1}`;
+    rightSub.appendChild(rightH4);
+
+    // Textarea
+    let rightTA = document.createElement("textarea");
+    rightTA.value = rightSeq? sequenceToString(rightSeq) : "";
+    rightTA.oninput = (e)=>{
+      sequencesRight[i] = stringToSequence(e.target.value);
+      reAssembleRightBytes();
+    };
+    rightSub.appendChild(rightTA);
+
+    seqBlock.appendChild(rightSub);
+    
+    let chartDiv = document.createElement("div");
+    chartDiv.id = `chartCanvas_${i}`;
+    chartDiv.className = "chartCanvas";
+    chartDiv.style.width="500px";
+    chartDiv.style.height="220px";
+    chartDiv.textContent=`Diagram Sequence #${i+1}`;
+    seqBlock.appendChild(chartDiv);
+
+    container.appendChild(seqBlock);
+
+    // Initial p5 Sketch
+    let s = createSingleChart(i, chartDiv);
+    chartSketchesLeft[i] = s; 
+    chartSketchesRight[i]= s;
+  }
+}
+
+/**
+ * Sequence => Byte-String
+ */
+function sequenceToString(seq) {
+  if (!seq) return "";
+  if (seq.identifier==="RAW"){
+    return buildByteString(seq.data);
+  }
+  let hl = seq.lengthVal.toString(16).padStart(4,"0").toUpperCase();
+  let arr = [
+    seq.identifier,
+    hl.slice(0,2),
+    hl.slice(2,4),
+    ...seq.data
+  ];
+  return buildByteString(arr);
+}
+
+/**
+ * Text => Sequence { identifier, lengthVal, data } or {RAW}
+ */
+function stringToSequence(text) {
+  let arr = parseByteString(text);
+  if (arr.length<1) return null;
+  if (arr[0]==="RAW" || arr.length<3) {
+    return {identifier:"RAW", lengthVal:arr.length, data:arr};
+  }
+  let identifier = arr[0];
+  let lenHigh = arr[1];
+  let lenLow  = arr[2];
+  let lengthVal = parseInt(lenHigh+lenLow,16);
+  if (isNaN(lengthVal)) lengthVal=0;
+  let data = arr.slice(3);
+  return {identifier, lengthVal, data};
+}
+
+/**
+ * Re-assembling => left1Bytes + left2Bytes
+ */
+function reAssembleLeftBytes(){
+  let combined=[];
+  for (let seq of sequencesLeft){
+    if (!seq) continue;
+    if (seq.identifier==="RAW"){
+      combined.push(...seq.data);
+    } else {
+      let hl= seq.lengthVal.toString(16).padStart(4,"0").toUpperCase();
+      combined.push(seq.identifier, hl.slice(0,2), hl.slice(2,4), ...seq.data);
+    }
+  }
+  left1Bytes=combined.slice(0,MAX_LEFT1);
+  let leftover=combined.slice(MAX_LEFT1);
+  left2Bytes= leftover.slice(0,MAX_LEFT2);
+  let leftover2= leftover.slice(MAX_LEFT2);
+  if (leftover2.length>0){
+    console.warn("Left side data truncated!");
+  }
+  while(left1Bytes.length<MAX_LEFT1) left1Bytes.push("00");
+  while(left2Bytes.length<MAX_LEFT2) left2Bytes.push("00");
+  document.getElementById("leftStaging1").value= buildByteString(left1Bytes);
+  document.getElementById("leftStaging2").value= buildByteString(left2Bytes);
+}
+
+/**
+ * Re-assembling => right1Bytes + right2Bytes
+ */
+function reAssembleRightBytes(){
+  let combined=[];
+  for (let seq of sequencesRight){
+    if(!seq) continue;
+    if(seq.identifier==="RAW"){
+      combined.push(...seq.data);
+    } else {
+      let hl= seq.lengthVal.toString(16).padStart(4,"0").toUpperCase();
+      combined.push(seq.identifier, hl.slice(0,2), hl.slice(2,4), ...seq.data);
+    }
+  }
+  right1Bytes= combined.slice(0,MAX_RIGHT1);
+  let leftover= combined.slice(MAX_RIGHT1);
+  right2Bytes= leftover.slice(0,MAX_RIGHT2);
+  let leftover2= leftover.slice(MAX_RIGHT2);
+  if (leftover2.length>0){
+    console.warn("Right side data truncated!");
+  }
+  while(right1Bytes.length<MAX_RIGHT1) right1Bytes.push("00");
+  while(right2Bytes.length<MAX_RIGHT2) right2Bytes.push("00");
+  document.getElementById("rightStaging1").value=buildByteString(right1Bytes);
+  document.getElementById("rightStaging2").value=buildByteString(right2Bytes);
+}
+
+/**
+ * create ONE p5 instance for every Diagram #i 
+ */
+function createSingleChart(seqIndex, containerDiv) {
+  return new p5((sketch)=>{
+    sketch.setup=()=>{
+      sketch.createCanvas(containerDiv.offsetWidth, containerDiv.offsetHeight)
+            .parent(containerDiv);
+    };
+    sketch.draw=()=>{
+      sketch.background(255);
+      let leftSeq = sequencesLeft[seqIndex];
+      let rightSeq= sequencesRight[seqIndex];
+      let leftData = parseForChart(leftSeq);
+      let rightData= parseForChart(rightSeq);
+      let maxTime = Math.max(leftData.maxT, rightData.maxT);
+
+      let margin=40;
+      let w=sketch.width -2*margin;
+      let h=sketch.height-2*margin;
+
+      // Border
+      sketch.stroke(0);
+      sketch.noFill();
+      sketch.rect(margin,margin,w,h);
+
+      // Axis
+      sketch.textSize(12);
+      sketch.fill(0);
+      sketch.noStroke();
+      sketch.text("Time (ms)", margin+w/2-25, margin+h+30);
+      sketch.push();
+      sketch.translate(margin-30, margin+h/2);
+      sketch.rotate(-sketch.HALF_PI);
+      sketch.text("Brightness (%)", 0,0);
+      sketch.pop();
+
+      // Define the steps for the X-axis grid
+      // Below 2500ms => Steps of 50, above => steps of 100
+      let gridStep = (maxTime <= 2500) ? 50 : 200;
+
+      // labelStep depends on maxTime
+      let labelStep= maxTime>2500? 1000:500;
+
+      // X-axis grid
+      sketch.stroke(200);
+      for (let t=0; t<=maxTime; t+=gridStep){
+        let x= sketch.map(t,0,maxTime, margin, margin+w);
+        if (t%labelStep===0){
+          sketch.noStroke();
+          sketch.fill(0);
+          sketch.text(`${t}`, x-10, margin+h+15);
+          sketch.stroke(200);
+          sketch.fill(255);
+        }
+        sketch.line(x,margin, x,margin+h);
+      }
+      // Y-axis grid
+      for (let bright=0; bright<=100; bright+=10){
+        let y=sketch.map(bright,0,100, margin+h, margin);
+        sketch.noStroke();
+        sketch.fill(0);
+        sketch.text(`${bright}`, margin-25,y+5);
+        sketch.stroke(200);
+        sketch.fill(255);
+        sketch.line(margin,y, margin+w,y);
+      }
+
+      // Left line (Blau)
+      sketch.stroke(0,0,255);
+      sketch.noFill();
+      sketch.beginShape();
+      for (let p of leftData.points){
+        let x= sketch.map(p.t, 0,maxTime, margin, margin+w);
+        let y= sketch.map(p.b, 0,100, margin+h, margin);
+        sketch.vertex(x,y);
+      }
+      sketch.endShape();
+
+      // Right line (Rot)
+      sketch.stroke(255,0,0);
+      sketch.noFill();
+      sketch.beginShape();
+      for (let p of rightData.points){
+        let x= sketch.map(p.t, 0,maxTime, margin, margin+w);
+        let y= sketch.map(p.b, 0,100, margin+h, margin);
+        sketch.vertex(x,y);
+      }
+      sketch.endShape();
+
+      // Optional green line when both follow the same line
+      sketch.stroke(0,255,0);
+      sketch.noFill();
+      sketch.beginShape();
+      let minLen = Math.min(leftData.points.length, rightData.points.length);
+      for (let i=0; i<minLen; i++){
+        let L= leftData.points[i];
+        let R= rightData.points[i];
+        if (L.t===R.t && L.b===R.b){
+          let x=sketch.map(L.t, 0,maxTime, margin, margin+w);
+          let y=sketch.map(L.b, 0,100, margin+h, margin);
+          sketch.vertex(x,y);
+        } else {
+          // stop and create new sketch
+          sketch.endShape();
+          sketch.beginShape();
+        }
+      }
+      sketch.endShape();
+    };
+  });
+}
+
+/**
+ * parseForChart(seq): Sum up Duration => Time, Brightness => {maxT, points[]}
+ */
+ function parseForChart(seq){
+  if (!seq || seq.identifier === "RAW"){
+    return { maxT: 0, points: [] };
+  }
+  let sumT = 0;
+  let pts = [];
+  
+  // Start with 0ms and 0%
+  pts.push({ t: 0, b: 0 });
+  
+  // Process the data pairs: First Byte pair creates the first datapoint
+  for (let i = 0; i < seq.data.length; i += 2){
+    let durHex = parseInt(seq.data[i], 16) || 0;
+    let briHex = parseInt(seq.data[i+1], 16) || 0;
+    sumT += durHex * 10; // Duration in ms (Byte-Value * 10)
+    let bri = Math.min(briHex, 100); // Brigthness (0-100%)
+    pts.push({ t: sumT, b: bri });
+  }
+  
+  return { maxT: sumT, points: pts };
+}
+
+// ============================================================================
+// 3) Update-Button => updateSingleDiagram("left"/"right", i)
+// ============================================================================
+function updateSingleDiagram(side, seqIndex){
+
+  let s = (side==="left")? chartSketchesLeft[seqIndex] : chartSketchesRight[seqIndex];
+  if (s) s.remove();
+
+  // Create new
+  let chartDiv = document.getElementById(`chartCanvas_${seqIndex}`);
+  let newSketch = createSingleChart(seqIndex, chartDiv);
+
+  // Save
+  chartSketchesLeft[seqIndex] = newSketch;
+  chartSketchesRight[seqIndex]= newSketch;
+}
+
+window.ondevicemotion=null;
+window.ondeviceorientation=null;
+</script>
+</body>
+</html>
