@@ -98,3 +98,8 @@ See the license.md file for details.
 Thanks to sig_serg and SimR from the bimmerpost.com forums for reverse engineering and explaining how the data works.  
 [sig_serg](https://g20.bimmerpost.com/forums/member.php?u=852876)  
 [SimR](https://g20.bimmerpost.com/forums/member.php?u=886522)
+
+## Disclaimer
+
+BMW and Mini are registered trademarks of Bayerische Motoren Werke AG.  
+This work is not affiliated with BMW AG in any way.
