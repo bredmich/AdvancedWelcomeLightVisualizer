@@ -1,10 +1,10 @@
  Advanced Welcome Light Visualizer © 2025 by Michael Oberhaus (MichaelNRW, bredmich) is licensed under CC BY-NC-SA 4.0
  
- Link to project: https://github.com/bredmich/AdvancedWelcomeLightVisualizer
- Author:
- MichaelNRW: https://g20.bimmerpost.com/forums/member.php?u=372141
- bredmich: https://github.com/bredmich
- License:
+ Link to project: https://github.com/bredmich/AdvancedWelcomeLightVisualizer  
+ Author:  
+ MichaelNRW: https://g20.bimmerpost.com/forums/member.php?u=372141  
+ bredmich: https://github.com/bredmich  
+ License:  
  https://creativecommons.org/licenses/by-nc-sa/4.0/
 
  Attribution-NonCommercial-ShareAlike 4.0 International
